@@ -18,6 +18,8 @@ const NewProduct = ({ history }) => {
 	const [category, setCategory] = useState("");
 	const [stock, setStock] = useState(0);
 	const [seller, setSeller] = useState("");
+	const [color, setColor] = useState("");
+	const [brand, setBrand] = useState("");
 	const [images, setImages] = useState([]); //store---> actual image data
 	const [imagesPreview, setImagesPreview] = useState([]); //store--->previews of images
 
@@ -68,6 +70,8 @@ const NewProduct = ({ history }) => {
 		formData.set("category", category);
 		formData.set("stock", stock);
 		formData.set("seller", seller);
+		formData.set("color", color);
+		formData.set("brand", brand);
 
 		images.forEach((image) => {
 			formData.append("images", image);
@@ -130,6 +134,8 @@ const NewProduct = ({ history }) => {
 									<input
 										type="text"
 										id="name_field"
+										pattern="^[a-zA-Z].{9,}$"
+										title="Product name should start with a letter and contain 10 or more characters"
 										className="form-control"
 										value={name}
 										onChange={(e) => setName(e.target.value)}
@@ -142,8 +148,35 @@ const NewProduct = ({ history }) => {
 										type="text"
 										id="price_field"
 										className="form-control"
+										min="0"
+										pattern="[0-9]*[.]?[0-9]{0,2}"
+										title="Price can only contain up to 2 decimal places (e.g. - 99.99)"
 										value={price}
 										onChange={(e) => setPrice(e.target.value)}
+									/>
+								</div>
+
+								<div className="form-group">
+									<label htmlFor="brand_field">Brand</label>
+									<input
+										type="text"
+										id="brand_field"
+										className="form-control"
+										value={brand}
+										pattern="^[a-zA-Z0-9 ]+$"
+										title="Brand can only contain alphanumeric characters and spaces"
+										onChange={(e) => setBrand(e.target.value)}
+									/>
+								</div>
+
+								<div className="form-group">
+									<label htmlFor="color_field">Color</label>
+									<input
+										type="text"
+										id="color_field"
+										className="form-control"
+										value={color}
+										onChange={(e) => setColor(e.target.value)}
 									/>
 								</div>
 
@@ -182,7 +215,9 @@ const NewProduct = ({ history }) => {
 										type="number"
 										id="stock_field"
 										className="form-control"
-										value="0"
+										min="0"
+										value={stock}
+										onChange={(e) => setStock(e.target.value)}
 									/>
 								</div>
 
@@ -219,6 +254,7 @@ const NewProduct = ({ history }) => {
 									<div className="custom-file">
 										<input
 											type="file"
+											accept=".png, .jpeg, .jpg, .webp"
 											name="product_images"
 											className="custom-file-input"
 											id="customFile"

@@ -29,22 +29,19 @@ const Home = ({ match }) => {
 		"Jacket",
 		"Short",
 		"Bag",
-		"Accessories",
+		"Watches",
+		"Shoes",
 	];
 
 	const alert = useAlert();
 	const dispatch = useDispatch();
 
-	const {
-		loading,
-		products,
-		error,
-		productsCount,
-		resPerPage,
-		filteredProductsCount,
-	} = useSelector((state) => state.products);
+	const { loading, products, error, productsCount, filteredProductsCount } =
+		useSelector((state) => state.products);
 
 	const keyword = match.params.keyword; //Extract the keyword value from the match.params object
+
+	const resPerPage = 6;
 
 	useEffect(() => {
 		//fetch the products from the backend API
@@ -73,11 +70,11 @@ const Home = ({ match }) => {
 				<Fragment>
 					<MetaData title={"Buy Best Products Online"} />
 
-					<h1 id="products_heading">Latest Products</h1>
+					<h1 id="products_heading">Our Products</h1>
 
 					<section id="products" className="container mt-5">
 						<div className="row">
-							{keyword ? (
+							{true ? (
 								<Fragment>
 									<div className="col-6 col-md-3 mt-5 mb-5">
 										<div className="px-5">
@@ -95,7 +92,9 @@ const Home = ({ match }) => {
 													visible: true,
 												}}
 												value={price}
-												onChange={(price) => setPrice(price)}
+												onChange={(price) => {
+													setPrice(price);
+												}}
 											/>
 
 											<hr className="my-5" />
@@ -104,6 +103,16 @@ const Home = ({ match }) => {
 												<h4 className="mb-3">Categories</h4>
 
 												<ul className="pl-0">
+													<li
+														style={{
+															cursor: "pointer",
+															listStyleType: "none",
+														}}
+														key="all"
+														onClick={() => setCategory("")}
+													>
+														All
+													</li>
 													{categories.map((category) => (
 														<li
 															style={{
@@ -127,7 +136,7 @@ const Home = ({ match }) => {
 												<h4 className="mb-3">Ratings</h4>
 
 												<ul className="pl-0">
-													{[5, 4, 3, 2, 1].map((star) => (
+													{[5, 4, 3, 2, 1, 0].map((star) => (
 														<li
 															style={{
 																cursor: "pointer",
@@ -168,7 +177,7 @@ const Home = ({ match }) => {
 									<Product
 										key={product._id}
 										product={product}
-										col={3}
+										col={4}
 									/>
 								))
 							)}
@@ -182,10 +191,10 @@ const Home = ({ match }) => {
 								itemsCountPerPage={resPerPage}
 								totalItemsCount={productsCount}
 								onChange={setCurrentPageNo}
-								nextPageText={"Next"}
-								prevPageText={"Prev"}
-								firstPageText={"First"}
-								lastPageText={"Last"}
+								nextPageText={">"}
+								prevPageText={"<"}
+								firstPageText={"<<"}
+								lastPageText={">>"}
 								itemClass="page-item"
 								linkClass="page-link"
 							/>

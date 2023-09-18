@@ -1,4 +1,4 @@
-import { MDBDataTable } from "mdbreact";
+import { MDBBadge, MDBDataTable } from "mdbreact";
 import React, { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
 import reportHeader from "../../assests/imgs/reportHeader.png";
@@ -12,18 +12,24 @@ import "jspdf-autotable";
 
 import { useAlert } from "react-alert";
 import { useDispatch, useSelector } from "react-redux";
-import { allUsers, clearErrors, deleteUser } from "../../actions/userActions";
-import { DELETE_USER_RESET } from "../../constants/userConstants";
+import {
+	allOrders,
+	clearErrors,
+	deleteOrder,
+} from "../../actions/orderActions";
+import { DELETE_ORDER_RESET } from "../../constants/orderConstants";
 
-const UsersList = ({ history }) => {
+const OrdersList = ({ match, history }) => {
 	const alert = useAlert();
 	const dispatch = useDispatch();
 
-	const { loading, error, users } = useSelector((state) => state.allUsers);
-	const { isDeleted } = useSelector((state) => state.user);
+	const { loading, error, orders } = useSelector((state) => state.allOrders);
+	const { isDeleted } = useSelector((state) => state.order);
+
+	const userId = match.params.id;
 
 	useEffect(() => {
-		dispatch(allUsers());
+		dispatch(allOrders());
 
 		if (error) {
 			alert.error(error);
@@ -31,37 +37,37 @@ const UsersList = ({ history }) => {
 		}
 
 		if (isDeleted) {
-			alert.success("User deleted successfully");
-			history.push("/admin/users");
-			dispatch({ type: DELETE_USER_RESET });
+			alert.success("Order deleted successfully");
+			history.push("/admin/orders");
+			dispatch({ type: DELETE_ORDER_RESET });
 		}
 	}, [dispatch, alert, error, isDeleted, history]);
 
-	const deleteUserHandler = (id) => {
-		dispatch(deleteUser(id));
+	const deleteOrderHandler = (id) => {
+		dispatch(deleteOrder(id));
 	};
 
-	const setUsers = () => {
+	const setOrders = () => {
 		const data = {
 			columns: [
 				{
-					label: "User ID",
+					label: "Order ID",
 					field: "id",
 					sort: "asc",
 				},
 				{
-					label: "Name",
-					field: "name",
+					label: "No of Items",
+					field: "numofItems",
 					sort: "asc",
 				},
 				{
-					label: "Email",
-					field: "email",
+					label: "Amount",
+					field: "amount",
 					sort: "asc",
 				},
 				{
-					label: "Role",
-					field: "role",
+					label: "Status",
+					field: "status",
 					sort: "asc",
 				},
 				{
@@ -72,32 +78,33 @@ const UsersList = ({ history }) => {
 			rows: [],
 		};
 
-		users
-			.filter((user) => user.role === "user")
-			.forEach((user) => {
+		orders
+			.filter((order) => order.user === userId)
+			.forEach((order) => {
 				data.rows.push({
-					id: user._id,
-					name: user.name,
-					email: user.email,
-					role: user.role,
-
+					id: order._id,
+					numofItems: order.orderItems.length,
+					amount: `Rs: ${order.totalPrice}`,
+					status:
+						order.orderStatus &&
+						String(order.orderStatus).includes("Delivered") ? (
+							<MDBBadge color="success">{order.orderStatus}</MDBBadge>
+						) : String(order.orderStatus).includes("Shipped") ? (
+							<MDBBadge color="info">{order.orderStatus}</MDBBadge>
+						) : (
+							<MDBBadge color="warning">{order.orderStatus}</MDBBadge>
+						),
 					actions: (
 						<Fragment>
 							<Link
-								to={`/admin/userOrdersList/${user._id}`}
-								className="btn btn-success py-1 px-2"
+								to={`/admin/order/${order._id}`}
+								className="btn btn-primary py-1 px-2"
 							>
-								<i className="fa fa-list"></i>
-							</Link>
-							<Link
-								to={`/admin/user/${user._id}`}
-								className="btn btn-primary py-1 px-2 ml-3"
-							>
-								<i className="fa fa-pencil"></i>
+								<i className="fa fa-eye"></i>
 							</Link>
 							<button
 								className="btn btn-danger py-1 px-2 ml-3"
-								onClick={() => deleteUserHandler(user._id)}
+								onClick={() => deleteOrderHandler(order._id)}
 							>
 								<i className="fa fa-trash"></i>
 							</button>
@@ -132,10 +139,10 @@ const UsersList = ({ history }) => {
 		doc.setFontSize(20);
 
 		//Change report name accordingly
-		doc.text("Customers Report", pageWidth / 2, 60, { align: "center" });
+		doc.text("Orders Report", pageWidth / 2, 60, { align: "center" });
 		// Underline the text
 		const textWidth =
-			(doc.getStringUnitWidth("Customers Report") *
+			(doc.getStringUnitWidth("Orders Report") *
 				doc.internal.getFontSize()) /
 			doc.internal.scaleFactor;
 		doc.setLineWidth(0.5);
@@ -150,20 +157,30 @@ const UsersList = ({ history }) => {
 		doc.setFontSize(12);
 		doc.text("Date: " + formattedDate, 195, 75, { align: "right" });
 
+		doc.setFont("arial", "normal");
+		doc.setFontSize(12);
+		doc.text("User: " + userId, 195, 75, { align: "left" });
+
 		// Add gap
 		const gap = 5;
 		let y = 80;
 
 		// Add table headers
-		const headers = ["ID", "Name", "Email", "Role"];
+		const headers = ["ID", "No Of Items", "Amount", "Status"];
 		tableRows.push(headers);
 
 		// Add table data
-		users
-			.filter((user) => user.role === "user")
-			.forEach((users) => {
-				const userData = [users._id, users.name, users.email, users.role];
-				tableRows.push(userData);
+		orders
+			.filter((order) => order.user === userId)
+			.forEach((orders) => {
+				const productData = [
+					orders._id,
+					orders.orderItems.length,
+					`Rs${orders.totalPrice}`,
+					orders.orderStatus &&
+						String(orders.orderStatus).includes("Delivered"),
+				];
+				tableRows.push(productData);
 			});
 
 		// Add table to PDF document
@@ -174,12 +191,12 @@ const UsersList = ({ history }) => {
 		});
 
 		// Save PDF file
-		doc.save("SalesVision-Customers_List.pdf");
+		doc.save("SalesVision-User_Orders_List.pdf");
 	};
 
 	return (
 		<Fragment>
-			<MetaData title={"All Customers"} />
+			<MetaData title={"All Orders"} />
 			<div className="row">
 				<div className="col-12 col-md-2">
 					<Sidebar />
@@ -187,7 +204,7 @@ const UsersList = ({ history }) => {
 
 				<div className="col-12 col-md-10">
 					<Fragment>
-						<h1 className="my-5">All Customers</h1>
+						<h1 className="my-5">All Orders</h1>
 						<button
 							className="btn btn-info py-1 px-2 ml-3"
 							onClick={generatePDF}
@@ -199,7 +216,7 @@ const UsersList = ({ history }) => {
 							<Loader />
 						) : (
 							<MDBDataTable
-								data={setUsers()}
+								data={setOrders()}
 								className="px-3"
 								bordered
 								striped
@@ -213,4 +230,4 @@ const UsersList = ({ history }) => {
 	);
 };
 
-export default UsersList;
+export default OrdersList;

@@ -1,127 +1,136 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useEffect, useState } from "react";
 
-import MetaData from '../layout/MetaData'
-import Sidebar from './Sidebar'
+import MetaData from "../layout/MetaData";
+import Sidebar from "./Sidebar";
 
-import { useAlert } from 'react-alert'
-import { useDispatch, useSelector } from 'react-redux'
-import { newSupplier, clearErrors } from '../../actions/supplierActions'
-import { NEW_SUPPLIER_RESET } from '../../constants/supplierConstants'
+import { useAlert } from "react-alert";
+import { useDispatch, useSelector } from "react-redux";
+import { clearErrors, newSupplier } from "../../actions/supplierActions";
+import { NEW_SUPPLIER_RESET } from "../../constants/supplierConstants";
 
 const NewSupplier = ({ history }) => {
+	const [name, setName] = useState("");
+	const [nic, setNic] = useState("");
+	const [phoneNumber, setPhoneNumber] = useState("");
+	const [email, setEmail] = useState("");
 
-    const [name, setName] = useState('');
-    const [nic, setNic] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [email, setEmail] = useState('');
+	const alert = useAlert();
+	const dispatch = useDispatch();
 
-    const alert = useAlert();
-    const dispatch = useDispatch();
+	const { loading, error, success } = useSelector(
+		(state) => state.newSupplier
+	);
 
-    const { loading, error, success } = useSelector(state => state.newSupplier);
+	useEffect(() => {
+		if (error) {
+			alert.error(error);
+			dispatch(clearErrors());
+		}
 
-    useEffect(() => {
+		if (success) {
+			history.push("/admin/suppliers");
+			alert.success("Supplier added successfully");
+			dispatch({ type: NEW_SUPPLIER_RESET });
+		}
+	}, [dispatch, alert, error, success, history]);
 
-        if (error) {
-            alert.error(error);
-            dispatch(clearErrors())
-        }
+	const submitHandler = (e) => {
+		e.preventDefault();
 
-        if (success) {
-            history.push('/admin/suppliers');
-            alert.success('Supplier added successfully');
-            dispatch({ type: NEW_SUPPLIER_RESET })
-        }
+		const formData = new FormData();
+		formData.set("name", name);
+		formData.set("nic", nic);
+		formData.set("phoneNumber", phoneNumber);
+		formData.set("email", email);
 
-    }, [dispatch, alert, error, success, history])
+		dispatch(newSupplier(formData));
+	};
 
-    const submitHandler = (e) => {
-        e.preventDefault();
+	return (
+		<Fragment>
+			<MetaData title={"New Supplier"} />
+			<div className="row">
+				<div className="col-12 col-md-2">
+					<Sidebar />
+				</div>
 
-        const formData = new FormData();
-        formData.set('name', name);
-        formData.set('nic', nic);
-        formData.set('phoneNumber', phoneNumber);
-        formData.set('email', email);
+				<div className="col-12 col-md-10">
+					<Fragment>
+						<div className="wrapper my-5">
+							<form
+								className="shadow-lg"
+								onSubmit={submitHandler}
+								encType="multipart/form-data"
+							>
+								<h1 className="mb-4">New Supplier</h1>
 
-        dispatch(newSupplier(formData))
-    }
+								<div className="form-group">
+									<label htmlFor="name_field">Name</label>
+									<input
+										type="text"
+										id="name_field"
+										className="form-control"
+										value={name}
+										pattern="^[a-zA-Z].{5,}$"
+										title="Supplier name should start with a letter and contain 5 or more characters"
+										onChange={(e) => setName(e.target.value)}
+									/>
+								</div>
 
-    return (
-        <Fragment>
-            <MetaData title={'New Supplier'} />
-            <div className="row">
-                <div className="col-12 col-md-2">
-                    <Sidebar />
-                </div>
+								<div className="form-group">
+									<label htmlFor="nic_field">NIC</label>
+									<input
+										type="text"
+										id="nic_field"
+										className="form-control"
+										value={nic}
+										onChange={(e) => setNic(e.target.value)}
+										required
+									/>
+								</div>
 
-                <div className="col-12 col-md-10">
-                    <Fragment>
-                        <div className="wrapper my-5">
-                            <form className="shadow-lg" onSubmit={submitHandler} encType='multipart/form-data'>
-                                <h1 className="mb-4">New Supplier</h1>
+								<div className="form-group">
+									<label htmlFor="phoneNumber_field">
+										Phone Number
+									</label>
+									<input
+										type="number"
+										id="phoneNumber_field"
+										className="form-control"
+										value={phoneNumber}
+										onChange={(e) => setPhoneNumber(e.target.value)}
+										required
+									/>
+								</div>
 
-                                <div className="form-group">
-                                    <label htmlFor="name_field">Name</label>
-                                    <input
-                                        type="text"
-                                        id="name_field"
-                                        className="form-control"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                    />
-                                </div>
+								<div className="form-group">
+									<label htmlFor="email_field">Email</label>
+									<input
+										type="text"
+										id="email_field"
+										className="form-control"
+										value={email}
+										title="Invalid Email"
+										onChange={(e) => setEmail(e.target.value)}
+										required
+									/>
+								</div>
 
-                                <div className="form-group">
-                                    <label htmlFor="nic_field">NIC</label>
-                                    <input
-                                        type="text"
-                                        id="nic_field"
-                                        className="form-control"
-                                        value={nic}
-                                        onChange={(e) => setNic(e.target.value)}
-                                    />
-                                </div>
+								<button
+									id="login_button"
+									type="submit"
+									className="btn btn-block py-3"
+									disabled={loading ? true : false}
+								>
+									CREATE
+								</button>
+							</form>
+						</div>
+					</Fragment>
+				</div>
+			</div>
+		</Fragment>
+	);
+};
 
-                                <div className="form-group">
-                                    <label htmlFor="phoneNumber_field">Phone Number</label>
-                                    <input
-                                        type="number"
-                                        id="phoneNumber_field"
-                                        className="form-control"
-                                        value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="email_field">Email</label>
-                                    <input
-                                        type="text"
-                                        id="email_field"
-                                        className="form-control"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                </div>
-
-                                <button
-                                    id="login_button"
-                                    type="submit"
-                                    className="btn btn-block py-3"
-                                    disabled={loading ? true : false}
-                                >
-                                    CREATE
-                                </button>
-
-                            </form>
-                        </div>
-                    </Fragment>
-                </div>
-            </div>
-
-        </Fragment>
-    )
-}
-
-export default NewSupplier
+export default NewSupplier;

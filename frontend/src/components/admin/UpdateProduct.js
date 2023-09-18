@@ -21,7 +21,9 @@ const UpdateProduct = ({ match, history }) => {
 	const [category, setCategory] = useState("");
 	const [stock, setStock] = useState(0);
 	const [seller, setSeller] = useState("");
+	const [color, setColor] = useState("");
 	const [images, setImages] = useState([]);
+	const [brand, setBrand] = useState("");
 
 	const [oldImages, setOldImages] = useState([]);
 	const [imagesPreview, setImagesPreview] = useState([]);
@@ -65,6 +67,8 @@ const UpdateProduct = ({ match, history }) => {
 			setSeller(product.seller);
 			setStock(product.stock);
 			setOldImages(product.images);
+			setColor(product.color);
+			setBrand(product.brand);
 		}
 
 		if (error) {
@@ -81,7 +85,7 @@ const UpdateProduct = ({ match, history }) => {
 
 		if (isUpdated) {
 			//if updated
-			history.goBack(); //navigates to the /admin/products
+			history.goBack(); //navigates to the last page
 			alert.success("Product updated successfully");
 			dispatch({ type: UPDATE_PRODUCT_RESET }); //reset the isUpdated property in the state.
 		}
@@ -107,6 +111,8 @@ const UpdateProduct = ({ match, history }) => {
 		formData.set("category", category);
 		formData.set("stock", stock);
 		formData.set("seller", seller);
+		formData.set("color", color);
+		formData.set("brand", brand);
 
 		images.forEach((image) => {
 			formData.append("images", image);
@@ -180,6 +186,28 @@ const UpdateProduct = ({ match, history }) => {
 								</div>
 
 								<div className="form-group">
+									<label htmlFor="brand_field">Brand</label>
+									<input
+										type="text"
+										id="brand_field"
+										className="form-control"
+										value={brand}
+										onChange={(e) => setBrand(e.target.value)}
+									/>
+								</div>
+
+								<div className="form-group">
+									<label htmlFor="color_field">Color</label>
+									<input
+										type="text"
+										id="color_field"
+										className="form-control"
+										value={color}
+										onChange={(e) => setColor(e.target.value)}
+									/>
+								</div>
+
+								<div className="form-group">
 									<label htmlFor="description_field">
 										Description
 									</label>
@@ -212,7 +240,7 @@ const UpdateProduct = ({ match, history }) => {
 									<input
 										type="number"
 										id="stock_field"
-										disabled="disabled"
+										min="0"
 										className="form-control"
 										value={stock}
 										onChange={(e) => setStock(e.target.value)}
@@ -253,6 +281,7 @@ const UpdateProduct = ({ match, history }) => {
 										<input
 											type="file"
 											name="product_images"
+											accept=".png, .jpeg, .jpg, .webp"
 											className="custom-file-input"
 											id="customFile"
 											onChange={onChange}

@@ -28,6 +28,8 @@ import UpdatePassword from "./components/user/UpdatePassword";
 import UpdateProfile from "./components/user/UpdateProfile";
 
 // Admin Imports
+import AllReviews from "./components/admin/AllReviews";
+import Analysis from "./components/admin/Analysis";
 import Dashboard from "./components/admin/Dashboard";
 import NewProduct from "./components/admin/NewProduct";
 import OrdersList from "./components/admin/OrdersList";
@@ -36,6 +38,7 @@ import ProductReviews from "./components/admin/ProductReviews";
 import ProductsList from "./components/admin/ProductsList";
 import UpdateProduct from "./components/admin/UpdateProduct";
 import UpdateUser from "./components/admin/UpdateUser";
+import UserOrdersList from "./components/admin/UserOrdersList";
 import UsersList from "./components/admin/UsersList";
 
 import EmployeesList from "./components/admin/EmployeesList";
@@ -137,6 +140,14 @@ function App() {
 					component={Dashboard}
 					exact
 				/>
+
+				<ProtectedRoute
+					path="/admin/analysis"
+					isAdmin={true}
+					component={Analysis}
+					exact
+				/>
+
 				<ProtectedRoute
 					path="/admin/products"
 					isAdmin={true}
@@ -180,9 +191,9 @@ function App() {
 					exact
 				/>
 				<ProtectedRoute
-					path="/admin/reviews"
+					path="/admin/reviews/"
 					isAdmin={true}
-					component={ProductReviews}
+					component={AllReviews}
 					exact
 				/>
 
@@ -225,9 +236,23 @@ function App() {
 				/>
 
 				<ProtectedRoute
+					path="/admin/userOrdersList/:id"
+					isAdmin={true}
+					component={UserOrdersList}
+					exact
+				/>
+
+				<ProtectedRoute
 					path="/admin/supplierProductList/:id"
 					isAdmin={true}
 					component={SupplierProductList}
+					exact
+				/>
+
+				<ProtectedRoute
+					path="/admin/productReviews/:id"
+					isAdmin={true}
+					component={ProductReviews}
 					exact
 				/>
 
@@ -250,9 +275,7 @@ function App() {
 					exact
 				/>
 
-				{!loading && (!isAuthenticated || user.role !== "admin") && (
-					<Footer />
-				)}
+				<Footer />
 			</div>
 		</Router>
 	);

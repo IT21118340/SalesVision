@@ -14,8 +14,8 @@ import {
 } from "../../actions/productActions";
 import { DELETE_REVIEW_RESET } from "../../constants/productConstants";
 
-const ProductReviews = ({ match }) => {
-	var pid = match.params.id;
+const ProductReviews = () => {
+	const [productId, setProductId] = useState(""); //productId--->initialized with an empty string/ setProductId--->update it.
 
 	const alert = useAlert();
 	const dispatch = useDispatch();
@@ -26,9 +26,6 @@ const ProductReviews = ({ match }) => {
 	);
 
 	useEffect(() => {
-		//get the product reviews for the specified product.
-		dispatch(getProductReviews(pid));
-
 		if (error) {
 			alert.error(error);
 			dispatch(clearErrors());
@@ -39,16 +36,26 @@ const ProductReviews = ({ match }) => {
 			dispatch(clearErrors());
 		}
 
+		if (productId !== "") {
+			// If productId has a value
+			dispatch(getProductReviews(productId)); //get the product reviews for the specified product.
+		}
+
 		if (isDeleted) {
 			alert.success("Review deleted successfully");
 			dispatch({ type: DELETE_REVIEW_RESET }); //reset the state of isDeleted.
 		}
-	}, [dispatch, alert, error, pid, isDeleted, deleteError]);
+	}, [dispatch, alert, error, productId, isDeleted, deleteError]);
 
 	const deleteReviewHandler = (id) => {
 		//delete a review with a given id and productId
-		dispatch(deleteReview(id, pid));
+		dispatch(deleteReview(id, productId));
 	};
+
+	const submitHandler = (e) => {
+		e.preventDefault();
+		dispatch(getProductReviews(productId)); //get the product reviews for a specified product
+	}; //It is called when a form is submitted.
 
 	// return sentiment of the review
 	const reviewSentiment = (re) => {
@@ -132,13 +139,45 @@ const ProductReviews = ({ match }) => {
 
 				<div className="col-12 col-md-10">
 					<Fragment>
-						<MDBDataTable
-							data={setReviews()}
-							className="px-3"
-							bordered
-							striped
-							hover
-						/>
+						<div className="row justify-content-center mt-5">
+							<div className="col-5">
+								<form onSubmit={submitHandler}>
+									<div className="form-group">
+										<label htmlFor="productId_field">
+											Enter Product ID
+										</label>
+										<input
+											type="text"
+											id="productId_field"
+											className="form-control"
+											value={productId}
+											onChange={(e) => setProductId(e.target.value)}
+										/>
+									</div>
+
+									<button
+										id="search_button"
+										type="submit"
+										className="btn btn-primary btn-block py-2"
+									>
+										SEARCH
+									</button>
+								</form>
+							</div>
+						</div>
+
+						{reviews && reviews.length > 0 ? ( //checks whether reviews is truthy and has a length greater than zero.
+							<MDBDataTable
+								data={setReviews()}
+								className="px-3"
+								bordered
+								striped
+								hover
+							/>
+						) : (
+							//If there are no reviews
+							<p className="mt-5 text-center">No Reviews.</p>
+						)}
 					</Fragment>
 				</div>
 			</div>

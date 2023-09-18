@@ -1,6 +1,7 @@
-import { MDBDataTable } from "mdbreact";
+import { MDBBadge, MDBDataTable } from "mdbreact";
 import React, { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
+import reportHeader from "../../assests/imgs/reportHeader.png";
 
 import Loader from "../layout/Loader";
 import MetaData from "../layout/MetaData";
@@ -79,13 +80,15 @@ const OrdersList = ({ history }) => {
 			data.rows.push({
 				id: order._id,
 				numofItems: order.orderItems.length,
-				amount: `Rs${order.totalPrice}`,
+				amount: `Rs: ${order.totalPrice}`,
 				status:
 					order.orderStatus &&
 					String(order.orderStatus).includes("Delivered") ? (
-						<p style={{ color: "green" }}>{order.orderStatus}</p>
+						<MDBBadge color="success">{order.orderStatus}</MDBBadge>
+					) : String(order.orderStatus).includes("Shipped") ? (
+						<MDBBadge color="info">{order.orderStatus}</MDBBadge>
 					) : (
-						<p style={{ color: "red" }}>{order.orderStatus}</p>
+						<MDBBadge color="warning">{order.orderStatus}</MDBBadge>
 					),
 				actions: (
 					<Fragment>
@@ -114,15 +117,45 @@ const OrdersList = ({ history }) => {
 		const doc = new jsPDF();
 		const tableRows = [];
 
-		// Add title
-		const title = `NextLevel - Order List - (${new Date().toLocaleDateString()})`;
-		const titleX = doc.internal.pageSize.getWidth() / 2;
-		doc.setFontSize(16);
-		doc.text(titleX, 20, title, "center");
+		const currentDate = new Date();
+		const year = currentDate.getFullYear();
+		const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+		const day = String(currentDate.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		// Add the logo image to the document
+		const logoWidth = 180;
+		const logoHeight = 25;
+		const pageWidth = doc.internal.pageSize.getWidth();
+		const logoX = (pageWidth - logoWidth) / 2;
+		doc.addImage(reportHeader, "PNG", logoX, 10, logoWidth, logoHeight); // (image, type, x, y, width, height)
+
+		// Add custom text next to the report name
+		doc.setFont("helvetica", "bold");
+		doc.setFontSize(20);
+
+		//Change report name accordingly
+		doc.text("Orders Report", pageWidth / 2, 60, { align: "center" });
+		// Underline the text
+		const textWidth =
+			(doc.getStringUnitWidth("Orders Report") *
+				doc.internal.getFontSize()) /
+			doc.internal.scaleFactor;
+		doc.setLineWidth(0.5);
+		doc.line(
+			pageWidth / 2 - textWidth / 2,
+			63,
+			pageWidth / 2 + textWidth / 2,
+			63
+		);
+
+		doc.setFont("arial", "normal");
+		doc.setFontSize(12);
+		doc.text("Date: " + formattedDate, 195, 75, { align: "right" });
 
 		// Add gap
 		const gap = 5;
-		let y = 20;
+		let y = 80;
 
 		// Add table headers
 		const headers = ["ID", "No Of Items", "Amount", "Status"];
@@ -148,7 +181,7 @@ const OrdersList = ({ history }) => {
 		});
 
 		// Save PDF file
-		doc.save("Order.pdf");
+		doc.save("SalesVision-Orders_List.pdf");
 	};
 
 	return (

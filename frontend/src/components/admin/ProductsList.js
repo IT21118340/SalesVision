@@ -3,6 +3,7 @@ import "jspdf-autotable";
 import { MDBDataTable } from "mdbreact";
 import React, { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
+import reportHeader from "../../assests/imgs/reportHeader.png";
 
 import Loader from "../layout/Loader";
 import MetaData from "../layout/MetaData";
@@ -66,6 +67,11 @@ const ProductsList = ({ history }) => {
 					sort: "asc",
 				},
 				{
+					label: "Brand",
+					field: "brand",
+					sort: "asc",
+				},
+				{
 					label: "Price",
 					field: "price",
 					sort: "asc",
@@ -93,7 +99,8 @@ const ProductsList = ({ history }) => {
 				//creates an object with properties --->columns
 				id: product._id,
 				name: product.name,
-				price: `Rs ${product.price}`,
+				brand: product.brand,
+				price: `Rs: ${product.price.toFixed(2)}`,
 				seller: product.seller,
 				stock: product.stock,
 				actions: (
@@ -127,18 +134,48 @@ const ProductsList = ({ history }) => {
 		const doc = new jsPDF();
 		const tableRows = [];
 
-		// Add title
-		const title = `NextLevel - Products List - (${new Date().toLocaleDateString()})`;
-		const titleX = doc.internal.pageSize.getWidth() / 2;
-		doc.setFontSize(16);
-		doc.text(titleX, 20, title, "center");
+		const currentDate = new Date();
+		const year = currentDate.getFullYear();
+		const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+		const day = String(currentDate.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		// Add the logo image to the document
+		const logoWidth = 180;
+		const logoHeight = 25;
+		const pageWidth = doc.internal.pageSize.getWidth();
+		const logoX = (pageWidth - logoWidth) / 2;
+		doc.addImage(reportHeader, "PNG", logoX, 10, logoWidth, logoHeight); // (image, type, x, y, width, height)
+
+		// Add custom text next to the report name
+		doc.setFont("helvetica", "bold");
+		doc.setFontSize(20);
+
+		//Change report name accordingly
+		doc.text("Products Report", pageWidth / 2, 60, { align: "center" });
+		// Underline the text
+		const textWidth =
+			(doc.getStringUnitWidth("Products Report") *
+				doc.internal.getFontSize()) /
+			doc.internal.scaleFactor;
+		doc.setLineWidth(0.5);
+		doc.line(
+			pageWidth / 2 - textWidth / 2,
+			63,
+			pageWidth / 2 + textWidth / 2,
+			63
+		);
+
+		doc.setFont("arial", "normal");
+		doc.setFontSize(12);
+		doc.text("Date: " + formattedDate, 195, 75, { align: "right" });
 
 		// Add gap
 		const gap = 5;
-		let y = 20;
+		let y = 80;
 
 		// Add table headers
-		const headers = ["ID", "Name", "Price", "Seller", "Stock"];
+		const headers = ["ID", "Name", "Brand", "Price", "Seller", "Stock"];
 		tableRows.push(headers);
 
 		// Add table data
@@ -146,7 +183,8 @@ const ProductsList = ({ history }) => {
 			const productData = [
 				product._id,
 				product.name,
-				`Rs ${product.price}`,
+				product.brand,
+				`Rs: ${product.price.toFixed(2)}`,
 				product.seller,
 				product.stock,
 			];
@@ -161,25 +199,57 @@ const ProductsList = ({ history }) => {
 		});
 
 		// Save PDF file
-		doc.save("Products-List.pdf");
+		doc.save("SalesVision-Products-List.pdf");
 	};
 
 	const generateOutOfStockPDF = () => {
 		const doc = new jsPDF();
 		const tableRows = [];
 
-		// Add title
-		const title = `NextLevel - Out of Stock List - (${new Date().toLocaleDateString()})`;
-		const titleX = doc.internal.pageSize.getWidth() / 2;
-		doc.setFontSize(16);
-		doc.text(titleX, 20, title, "center");
+		const currentDate = new Date();
+		const year = currentDate.getFullYear();
+		const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+		const day = String(currentDate.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		// Add the logo image to the document
+		const logoWidth = 180;
+		const logoHeight = 25;
+		const pageWidth = doc.internal.pageSize.getWidth();
+		const logoX = (pageWidth - logoWidth) / 2;
+		doc.addImage(reportHeader, "PNG", logoX, 10, logoWidth, logoHeight); // (image, type, x, y, width, height)
+
+		// Add custom text next to the report name
+		doc.setFont("helvetica", "bold");
+		doc.setFontSize(20);
+
+		//Change report name accordingly
+		doc.text("Out Of Stock Products Report", pageWidth / 2, 60, {
+			align: "center",
+		});
+		// Underline the text
+		const textWidth =
+			(doc.getStringUnitWidth("Out Of Stock Products Report") *
+				doc.internal.getFontSize()) /
+			doc.internal.scaleFactor;
+		doc.setLineWidth(0.5);
+		doc.line(
+			pageWidth / 2 - textWidth / 2,
+			63,
+			pageWidth / 2 + textWidth / 2,
+			63
+		);
+
+		doc.setFont("arial", "normal");
+		doc.setFontSize(12);
+		doc.text("Date: " + formattedDate, 195, 75, { align: "right" });
 
 		// Add gap
 		const gap = 5;
-		let y = 20;
+		let y = 80;
 
 		// Add table headers
-		const headers = ["ID", "Name", "Price", "Seller", "Stock"];
+		const headers = ["ID", "Title", "Price", "Brand", "Supplier", "Stock"];
 		tableRows.push(headers);
 
 		// Filter out products with stock = 0
@@ -192,7 +262,8 @@ const ProductsList = ({ history }) => {
 			const productData = [
 				product._id,
 				product.name,
-				`Rs ${product.price}`,
+				product.brand,
+				`Rs: ${product.price.toFixed(2)}`,
 				product.seller,
 				product.stock,
 			];
@@ -207,7 +278,7 @@ const ProductsList = ({ history }) => {
 		});
 
 		// Save PDF file
-		doc.save("out-of-stock-products.pdf");
+		doc.save("SalesVision-Out_Of_Stock_Products.pdf");
 	};
 
 	return (

@@ -1,2 +1,0 @@
-# SalesVision
-SPM Project

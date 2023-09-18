@@ -65,6 +65,14 @@ const productSchema = new mongoose.Schema({
 		type: Number,
 		default: 0, //if no reviews default is 0
 	},
+	color: {
+		type: String,
+		required: false,
+	},
+	brand: {
+		type: String,
+		required: false,
+	},
 	reviews: [
 		{
 			user: {

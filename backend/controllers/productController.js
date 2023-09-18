@@ -46,7 +46,7 @@ exports.newProduct = catchAsyncErrors(async (req, res, next) => {
 
 // Get all products   =>   /api/v1/products?keyword=Tshirt
 exports.getProducts = catchAsyncErrors(async (req, res, next) => {
-	const resPerPage = 4; //display number of products in one page
+	const resPerPage = 6; //display number of products in one page
 	const productsCount = await Product.countDocuments(); //counts the number of documents in the Product collection in the MongoDB database.
 
 	const apiFeatures = new APIFeatures(Product.find(), req.query) //use spi feature-->query to find all products
