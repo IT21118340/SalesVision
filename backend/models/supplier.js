@@ -23,24 +23,12 @@ const supplierSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: [true, 'Please enter phone number'],
-        unique: [true, 'Invalid'],
-        validate: {
-          validator: function(value) {
-            return /^[0-9]{10}$/.test(value);
-          },
-          message: 'Invalid phone number'
-        }
+        unique: [true, 'Invalid']
     },
     email: {
         type: String,
         required: [true, 'Please enter email'],
         unique: [true, 'Invalid'],
-        validate: {
-          validator: function(value) {
-            return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
-          },
-          message: 'Invalid email'
-        }
     },
     createdAt: {
         type: Date,

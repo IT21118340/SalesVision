@@ -58,7 +58,7 @@ const ProductDetails = ({ match }) => {
 	const increaseQty = () => {
 		const count = document.querySelector(".count");
 
-		if (count.valueAsNumber >= product.stock) return; //current quantity (count.valueAsNumber) <= available stock (product.stock)
+		if (count.valueAsNumber >= product.stock) return; //current // if (count.valueAsNumber >= product.stock) return; //current quantity (count.valueAsNumber) <= available stock (product.stock)
 
 		const qty = count.valueAsNumber + 1; //increments the quantity by 1
 		setQuantity(qty);
@@ -205,9 +205,13 @@ const ProductDetails = ({ match }) => {
 									id="stock_status"
 									className={
 										product.stock > 0 ? "greenColor" : "redColor"
-									}
+									} // product.stock > 0 ? "greenColor" : "redColor"
 								>
-									{product.stock > 0 ? "In Stock" : "Out of Stock"}
+									{
+										product.stock > 0
+											? "In Stock"
+											: "Out of Stock" /* {product.stock > 0 ? "In Stock" : "Out of Stock"}*/
+									}
 								</span>
 							</p>
 

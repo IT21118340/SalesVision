@@ -5,14 +5,10 @@ import Sidebar from "./Sidebar";
 
 import { useAlert } from "react-alert";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  clearErrors,
-  getDeliveryDetails,
-  updateDelivery,
-} from "../../actions/deliveryActions";
-import { UPDATE_DELIVERY_RESET } from "../../constants/deliveryConstants";
+import { clearErrors, newDelivery } from "../../actions/deliveryActions";
+import { NEW_DELIVERY_RESET } from "../../constants/deliveryConstants";
 
-const UpdateDelivery = ({ match, history }) => {
+const NewDelivery = ({ history }) => {
   const [name, setName] = useState("");
   const [adress, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -23,79 +19,35 @@ const UpdateDelivery = ({ match, history }) => {
   const alert = useAlert();
   const dispatch = useDispatch();
 
-  const { error, delivery } = useSelector((state) => state.deliveryDetails);
-  const {
-    loading,
-    error: updateError,
-    isUpdated,
-  } = useSelector((state) => state.delivery);
-
-  const deliveryId = match.params.id;
+  const { loading, error, success } = useSelector((state) => state.newDelivery);
 
   useEffect(() => {
-    if (delivery && delivery._id !== deliveryId) {
-      dispatch(getDeliveryDetails(deliveryId));
-    } else {
-      setName(delivery.name);
-      setAddress(delivery.adress);
-      setPhoneNumber(delivery.phoneNumber);
-      setEmail(delivery.email);
-      setdiliveryPerson(delivery.diliveryPerson);
-      setRemark(delivery.remark);
-    }
-
     if (error) {
       alert.error(error);
       dispatch(clearErrors());
     }
 
-    if (updateError) {
-      alert.error(updateError);
-      dispatch(clearErrors());
-    }
-
-    if (isUpdated) {
+    if (success) {
       history.push("/admin/deliveries");
-      alert.success("Delivery Updated Successfully");
-      dispatch({ type: UPDATE_DELIVERY_RESET });
+      alert.success("Dilivery added successfully");
+      dispatch({ type: NEW_DELIVERY_RESET });
     }
-  }, [
-    dispatch,
-    alert,
-    error,
-    isUpdated,
-    history,
-    updateError,
-    delivery,
-    deliveryId,
-  ]);
-
-  const validatePhoneNumber = (phone) => {
-    const phoneRegex = /^[0-9]{10}$/; // Allows exactly 10 digits
-    return phoneRegex.test(phone);
-    // Implement your phone number validation logic here
-    // You can use regex or other validation methods
-    return true; // Replace with your validation logic
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-    return emailRegex.test(email);
-    // Implement your email validation logic here
-    // You can use regex or other validation methods
-    return true; // Replace with your validation logic
-  };
+  }, [dispatch, alert, error, success, history]);
 
   const submitHandler = (e) => {
     e.preventDefault();
 
-    if (!validatePhoneNumber(phoneNumber)) {
-      alert.error("Invalid phone number");
+    // Phone number validation (10 digits)
+    const phonePattern = /^\d{10}$/;
+    if (!phonePattern.test(phoneNumber)) {
+      alert.error("Please enter a valid 10-digit phone number");
       return;
     }
 
-    if (!validateEmail(email)) {
-      alert.error("Invalid email");
+    // Email validation
+    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailPattern.test(email)) {
+      alert.error("Please enter a valid email address");
       return;
     }
 
@@ -107,12 +59,12 @@ const UpdateDelivery = ({ match, history }) => {
     formData.set("diliveryPerson", diliveryPerson);
     formData.set("remark", remark);
 
-    dispatch(updateDelivery(delivery._id, formData));
+    dispatch(newDelivery(formData));
   };
 
   return (
     <Fragment>
-      <MetaData title={"Update Delivery"} />
+      <MetaData title={"New Delivery"} />
       <div className="row">
         <div className="col-12 col-md-2">
           <Sidebar />
@@ -126,16 +78,19 @@ const UpdateDelivery = ({ match, history }) => {
                 onSubmit={submitHandler}
                 encType="multipart/form-data"
               >
-                <h1 className="mb-4">Update Delivery</h1>
+                <h1 className="mb-4">New Delivery</h1>
 
                 <div className="form-group">
-                  <label htmlFor="name_field">Name</label>
+                  <label htmlFor="name_field">Customer Name</label>
                   <input
                     type="text"
                     id="name_field"
+                    pattern="^[a-zA-Z].{5,}$"
+                    title="Name should start with a letter and contain 5 or more characters"
                     className="form-control"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    required
                   />
                 </div>
 
@@ -147,6 +102,7 @@ const UpdateDelivery = ({ match, history }) => {
                     className="form-control"
                     value={adress}
                     onChange={(e) => setAddress(e.target.value)}
+                    required
                   />
                 </div>
 
@@ -158,6 +114,7 @@ const UpdateDelivery = ({ match, history }) => {
                     className="form-control"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
                   />
                 </div>
 
@@ -169,11 +126,12 @@ const UpdateDelivery = ({ match, history }) => {
                     className="form-control"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="diliveryPerson_field">Delivered By</label>
+                  <label htmlFor="diliveryPerson_field">DeliveryPerson</label>
                   <input
                     type="text"
                     id="diliveryPerson_field"
@@ -200,7 +158,7 @@ const UpdateDelivery = ({ match, history }) => {
                   className="btn btn-block py-3"
                   disabled={loading ? true : false}
                 >
-                  UPDATE
+                  CREATE
                 </button>
               </form>
             </div>
@@ -211,4 +169,4 @@ const UpdateDelivery = ({ match, history }) => {
   );
 };
 
-export default UpdateDelivery;
+export default NewDelivery;

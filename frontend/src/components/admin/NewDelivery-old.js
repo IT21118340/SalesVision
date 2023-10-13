@@ -5,20 +5,22 @@ import Sidebar from "./Sidebar";
 
 import { useAlert } from "react-alert";
 import { useDispatch, useSelector } from "react-redux";
-import { clearErrors, newSupplier } from "../../actions/supplierActions";
-import { NEW_SUPPLIER_RESET } from "../../constants/supplierConstants";
+import { clearErrors, newDelivery } from "../../actions/deliveryActions";
+import { NEW_DELIVERY_RESET } from "../../constants/deliveryConstants";
 
-const NewSupplier = ({ history }) => {
+const NewDelivery = ({ history }) => {
 	const [name, setName] = useState("");
-	const [nic, setNic] = useState("");
+	const [adress, setAddress] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [email, setEmail] = useState("");
+	const [diliveryPerson, setdiliveryPerson] = useState("");
+	const [remark, setRemark] = useState("");
 
 	const alert = useAlert();
 	const dispatch = useDispatch();
 
 	const { loading, error, success } = useSelector(
-		(state) => state.newSupplier
+		(state) => state.newDelivery
 	);
 
 	useEffect(() => {
@@ -28,9 +30,9 @@ const NewSupplier = ({ history }) => {
 		}
 
 		if (success) {
-			history.push("/admin/suppliers");
-			alert.success("Supplier added successfully");
-			dispatch({ type: NEW_SUPPLIER_RESET });
+			history.push("/admin/deliveries");
+			alert.success("Dilivery added successfully");
+			dispatch({ type: NEW_DELIVERY_RESET });
 		}
 	}, [dispatch, alert, error, success, history]);
 
@@ -39,16 +41,18 @@ const NewSupplier = ({ history }) => {
 
 		const formData = new FormData();
 		formData.set("name", name);
-		formData.set("nic", nic);
+		formData.set("adress", adress);
 		formData.set("phoneNumber", phoneNumber);
 		formData.set("email", email);
+		formData.set("diliveryPerson", diliveryPerson);
+		formData.set("remark", remark);
 
-		dispatch(newSupplier(formData));
+		dispatch(newDelivery(formData));
 	};
 
 	return (
 		<Fragment>
-			<MetaData title={"New Supplier"} />
+			<MetaData title={"New Delivery"} />
 			<div className="row">
 				<div className="col-12 col-md-2">
 					<Sidebar />
@@ -62,31 +66,30 @@ const NewSupplier = ({ history }) => {
 								onSubmit={submitHandler}
 								encType="multipart/form-data"
 							>
-								<h1 className="mb-4">New Supplier</h1>
+								<h1 className="mb-4">New Delivery</h1>
 
 								<div className="form-group">
-									<label htmlFor="name_field">Name</label>
+									<label htmlFor="name_field">Customer Name</label>
 									<input
 										type="text"
 										id="name_field"
+										pattern="^[a-zA-Z].{5,}$"
+										title="Name should start with a letter and contain 5 or more characters"
 										className="form-control"
 										value={name}
-										pattern="^[a-zA-Z].{5,}$"
-										title="Supplier name should start with a letter and contain 5 or more characters"
 										onChange={(e) => setName(e.target.value)}
+										required
 									/>
 								</div>
 
 								<div className="form-group">
-									<label htmlFor="nic_field">NIC</label>
+									<label htmlFor="address_field">Address</label>
 									<input
 										type="text"
-										id="nic_field"
+										id="address_field"
 										className="form-control"
-										value={nic}
-										pattern="^[a-zA-Z0-9].{9,}$"
-										title="NIC should contain 10 alphanumerical characters"
-										onChange={(e) => setNic(e.target.value)}
+										value={adress}
+										onChange={(e) => setAddress(e.target.value)}
 										required
 									/>
 								</div>
@@ -96,12 +99,10 @@ const NewSupplier = ({ history }) => {
 										Phone Number
 									</label>
 									<input
-										type="text"
+										type="number"
 										id="phoneNumber_field"
 										className="form-control"
 										value={phoneNumber}
-										pattern="^[0-9].{9,}$"
-										title="Phone Number should contain 10 digits"
 										onChange={(e) => setPhoneNumber(e.target.value)}
 										required
 									/>
@@ -114,9 +115,34 @@ const NewSupplier = ({ history }) => {
 										id="email_field"
 										className="form-control"
 										value={email}
-										title="Invalid Email"
 										onChange={(e) => setEmail(e.target.value)}
 										required
+									/>
+								</div>
+
+								<div className="form-group">
+									<label htmlFor="diliveryPerson_field">
+										DeliveryPerson
+									</label>
+									<input
+										type="text"
+										id="diliveryPerson_field"
+										className="form-control"
+										value={diliveryPerson}
+										onChange={(e) =>
+											setdiliveryPerson(e.target.value)
+										}
+									/>
+								</div>
+
+								<div className="form-group">
+									<label htmlFor="remark_field">Remark</label>
+									<input
+										type="text"
+										id="remark_field"
+										className="form-control"
+										value={remark}
+										onChange={(e) => setRemark(e.target.value)}
 									/>
 								</div>
 
@@ -137,4 +163,4 @@ const NewSupplier = ({ history }) => {
 	);
 };
 
-export default NewSupplier;
+export default NewDelivery;

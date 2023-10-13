@@ -5,10 +5,14 @@ import Sidebar from "./Sidebar";
 
 import { useAlert } from "react-alert";
 import { useDispatch, useSelector } from "react-redux";
-import { clearErrors, newDelivery } from "../../actions/deliveryActions";
-import { NEW_DELIVERY_RESET } from "../../constants/deliveryConstants";
+import {
+	clearErrors,
+	getDeliveryDetails,
+	updateDelivery,
+} from "../../actions/deliveryActions";
+import { UPDATE_DELIVERY_RESET } from "../../constants/deliveryConstants";
 
-const NewDelivery = ({ history }) => {
+const UpdateDelivery = ({ match, history }) => {
 	const [name, setName] = useState("");
 	const [adress, setAddress] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,39 +23,55 @@ const NewDelivery = ({ history }) => {
 	const alert = useAlert();
 	const dispatch = useDispatch();
 
-	const { loading, error, success } = useSelector(
-		(state) => state.newDelivery
-	);
+	const { error, delivery } = useSelector((state) => state.deliveryDetails);
+	const {
+		loading,
+		error: updateError,
+		isUpdated,
+	} = useSelector((state) => state.delivery);
+
+	const deliveryId = match.params.id;
 
 	useEffect(() => {
+		if (delivery && delivery._id !== deliveryId) {
+			dispatch(getDeliveryDetails(deliveryId));
+		} else {
+			setName(delivery.name);
+			setAddress(delivery.adress);
+			setPhoneNumber(delivery.phoneNumber);
+			setEmail(delivery.email);
+			setdiliveryPerson(delivery.diliveryPerson);
+			setRemark(delivery.remark);
+		}
+
 		if (error) {
 			alert.error(error);
 			dispatch(clearErrors());
 		}
 
-		if (success) {
-			history.push("/admin/deliveries");
-			alert.success("Delivery added successfully");
-			dispatch({ type: NEW_DELIVERY_RESET });
+		if (updateError) {
+			alert.error(updateError);
+			dispatch(clearErrors());
 		}
-	}, [dispatch, alert, error, success, history]);
+
+		if (isUpdated) {
+			history.push("/admin/deliveries");
+			alert.success("Delivery Updated Successfully");
+			dispatch({ type: UPDATE_DELIVERY_RESET });
+		}
+	}, [
+		dispatch,
+		alert,
+		error,
+		isUpdated,
+		history,
+		updateError,
+		delivery,
+		deliveryId,
+	]);
 
 	const submitHandler = (e) => {
 		e.preventDefault();
-
-		// Phone number validation (10 digits)
-		const phonePattern = /^\d{10}$/;
-		if (!phonePattern.test(phoneNumber)) {
-			alert.error("Please enter a valid 10-digit phone number");
-			return;
-		}
-
-		// Email validation
-		const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-		if (!emailPattern.test(email)) {
-			alert.error("Please enter a valid email address");
-			return;
-		}
 
 		const formData = new FormData();
 		formData.set("name", name);
@@ -61,12 +81,12 @@ const NewDelivery = ({ history }) => {
 		formData.set("diliveryPerson", diliveryPerson);
 		formData.set("remark", remark);
 
-		dispatch(newDelivery(formData));
+		dispatch(updateDelivery(delivery._id, formData));
 	};
 
 	return (
 		<Fragment>
-			<MetaData title={"New Delivery"} />
+			<MetaData title={"Update Delivery"} />
 			<div className="row">
 				<div className="col-12 col-md-2">
 					<Sidebar />
@@ -80,19 +100,16 @@ const NewDelivery = ({ history }) => {
 								onSubmit={submitHandler}
 								encType="multipart/form-data"
 							>
-								<h1 className="mb-4">New Delivery</h1>
+								<h1 className="mb-4">Update Delivery</h1>
 
 								<div className="form-group">
-									<label htmlFor="name_field">Customer Name</label>
+									<label htmlFor="name_field">Name</label>
 									<input
 										type="text"
 										id="name_field"
-										pattern="^[a-zA-Z].{5,}$"
-										title="Name should start with a letter and contain 5 or more characters"
 										className="form-control"
 										value={name}
 										onChange={(e) => setName(e.target.value)}
-										required
 									/>
 								</div>
 
@@ -104,7 +121,6 @@ const NewDelivery = ({ history }) => {
 										className="form-control"
 										value={adress}
 										onChange={(e) => setAddress(e.target.value)}
-										required
 									/>
 								</div>
 
@@ -118,7 +134,6 @@ const NewDelivery = ({ history }) => {
 										className="form-control"
 										value={phoneNumber}
 										onChange={(e) => setPhoneNumber(e.target.value)}
-										required
 									/>
 								</div>
 
@@ -130,13 +145,12 @@ const NewDelivery = ({ history }) => {
 										className="form-control"
 										value={email}
 										onChange={(e) => setEmail(e.target.value)}
-										required
 									/>
 								</div>
 
 								<div className="form-group">
 									<label htmlFor="diliveryPerson_field">
-										Delivery Person
+										Delivered By
 									</label>
 									<input
 										type="text"
@@ -166,7 +180,7 @@ const NewDelivery = ({ history }) => {
 									className="btn btn-block py-3"
 									disabled={loading ? true : false}
 								>
-									CREATE
+									UPDATE
 								</button>
 							</form>
 						</div>
@@ -177,4 +191,4 @@ const NewDelivery = ({ history }) => {
 	);
 };
 
-export default NewDelivery;
+export default UpdateDelivery;

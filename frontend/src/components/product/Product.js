@@ -52,7 +52,7 @@ const Product = ({ product, col }) => {
 						type="button"
 						id="cart_btn"
 						className="btn btn-primary d-inline ml-4"
-						disabled={product.stock === 0}
+						disabled={product.quantity === 0}
 						onClick={() => addToCart(product._id)}
 					>
 						Add to Cart

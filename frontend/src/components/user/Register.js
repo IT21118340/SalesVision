@@ -118,6 +118,8 @@ const Register = ({ history }) => {
 								name="password"
 								value={password}
 								onChange={onChange}
+								minLength="5"
+								title="Password should have minimum 5 characters"
 								required
 							/>
 						</div>
@@ -142,6 +144,8 @@ const Register = ({ history }) => {
 										id="customFile"
 										accept="iamges/*"
 										onChange={onChange}
+										title="Profile picture is required"
+										required
 									/>
 									<label
 										className="custom-file-label"

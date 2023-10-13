@@ -24,6 +24,8 @@ const OrderSuccess = () => {
 					</Link>
 				</div>
 			</div>
+			<br />
+			<br />
 		</Fragment>
 	);
 };
